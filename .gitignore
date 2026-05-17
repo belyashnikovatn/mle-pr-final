@@ -167,3 +167,9 @@ old/
 eda_bank_products_report.pdf
 mlruns/
 catboost_info/data/
+catboost_info/catboost_training.json
+catboost_info/learn_error.tsv
+catboost_info/time_left.tsv
+catboost_info/learn/events.out.tfevents
+catboost_info/tmp/cat_feature_index.4f785e2b-38587339-b84ebcff-416c64c8.tmp
+data/train_ver2.csv
