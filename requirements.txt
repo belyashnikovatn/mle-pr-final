@@ -16,3 +16,6 @@ plotly==5.20.0
 kaleido==0.2.1
 boto3==1.34.77
 psycopg2-binary
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
