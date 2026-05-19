@@ -165,6 +165,8 @@ old/
 .vscode/
 .DS_Store
 eda_bank_products_report.pdf
+eda_product_frequency.csv
+eda_product_prevalence_pct.csv
 mlruns/
 catboost_info/data/
 catboost_info/catboost_training.json
@@ -173,3 +175,7 @@ catboost_info/time_left.tsv
 catboost_info/learn/events.out.tfevents
 catboost_info/tmp/cat_feature_index.4f785e2b-38587339-b84ebcff-416c64c8.tmp
 data/train_ver2.csv
+
+# Docker volumes
+prometheus-data/
+grafana-data/

@@ -7,7 +7,6 @@ pandas==2.0.1
 scikit-learn==1.3.1
 catboost==1.2.2
 scipy==1.11.3
-optuna==3.4.0
 ipywidgets==8.1.1
 seaborn==0.13.0
 autofeat==2.1.2
@@ -19,3 +18,4 @@ psycopg2-binary
 fastapi==0.104.1
 uvicorn==0.24.0
 python-multipart==0.0.6
+prometheus-client

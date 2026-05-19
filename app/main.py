@@ -4,7 +4,9 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from .config import config
 from .handler import FastApiHandler
@@ -45,6 +47,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(RequestValidationError)
+async def request_validation_handler(_request, exc: RequestValidationError):
+    """Ошибки схемы запроса → 400 (как в тестах и описании API)."""
+    errors = exc.errors()
+    if errors:
+        err = errors[0]
+        loc = ".".join(str(x) for x in err.get("loc", ()) if x != "body")
+        msg = err.get("msg", "Validation error")
+        detail = f"{loc}: {msg}" if loc else msg
+    else:
+        detail = "Validation error"
+    return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": detail})
 
 
 @app.get("/health", tags=["Health"])

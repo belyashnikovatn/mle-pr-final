@@ -85,15 +85,37 @@ class FastApiHandler:
         
         return df
     
-    def _extract_probabilities(self, predict_proba_result) -> np.ndarray:
-        """Извлекает вероятности положительного класса."""
-        probs = []
-        for p in predict_proba_result:
-            if p.ndim == 2:
-                probs.append(p[0, 1])
+    def _extract_probabilities(self, predict_proba_result, n_samples: int = 1) -> np.ndarray:
+        """
+        Приводит выход OneVsRestClassifier.predict_proba к вектору (n_products,).
+        CatBoost + OneVsRest может вернуть список (n_products,) массивов или матрицу (n_samples, n_products).
+        """
+        n_products = len(self.products)
+
+        if isinstance(predict_proba_result, list):
+            cols = []
+            for p in predict_proba_result:
+                p = np.asarray(p)
+                if p.ndim == 2 and p.shape[1] == 2:
+                    cols.append(p[:, 1])
+                else:
+                    cols.append(p.ravel())
+            matrix = np.column_stack(cols)
+        else:
+            arr = np.asarray(predict_proba_result)
+            if arr.ndim == 3:
+                matrix = arr[:, :, 1]
+            elif arr.ndim == 2:
+                if arr.shape[0] == n_samples and arr.shape[1] == n_products:
+                    matrix = arr
+                elif arr.shape[0] == n_products and arr.shape[1] == n_samples:
+                    matrix = arr.T
+                else:
+                    raise ValueError(f"Unexpected predict_proba shape: {arr.shape}")
             else:
-                probs.append(p[0])
-        return np.array(probs)
+                raise ValueError(f"Unexpected predict_proba shape: {arr.shape}")
+
+        return matrix[0] if n_samples == 1 else matrix
     
     def validate_params(self, features: ClientFeatures) -> ValidationResult:
         """Валидация входных параметров."""
@@ -120,7 +142,7 @@ class FastApiHandler:
         
         X = self._preprocess_features(features)
         proba_result = self.model.predict_proba(X)
-        probs = self._extract_probabilities(proba_result)
+        probs = self._extract_probabilities(proba_result, n_samples=len(X))
         
         top_indices = np.argsort(probs)[::-1][:7]
         recommendations = [self.products[i] for i in top_indices]
